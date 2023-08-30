@@ -33,23 +33,9 @@ GR_colour = "#98D8AA"
 ECD_colour = "#FF6D60"
 
 
-# In[2]:
-
-
-# uni = pd.read_csv("20230401 - Masi University Main Sheet.csv")
-# tl = pd.read_csv("2023 Top Learner  High School - Main -20230120 - NMB High Schools.csv")
-children = pd.read_csv("Results By Year/All22.csv").assign(
+children = pd.read_csv("All22.csv").assign(
     full_sessions = lambda x: x["Total Sessions"] > 30
 )
-
-
-# In[3]:
-
-
-children.columns
-
-
-# In[4]:
 
 
 children["Jan - Sounds and Phonics"] =  children["Jan - Sounds First Letter"] + children["Jan - Phonics"]
@@ -68,10 +54,6 @@ children["Total Improvement"] = children["Nov - Total"] - children["Jan - Total"
 children['Ever On Programme w Grads'] = children['Ever On Programme'].apply(lambda x: 'Yes' if x == 'Yes' or x == 'Graduated' else 'No')
 
 improvement_columns = ["First Sounds Improvement","Phonics Improvement","Sight Words Improvement", "Letters Improvement", "Sentence Improvement", "Total Improvement" ]
-
-
-# In[5]:
-
 
 # We are excluding our graduates from all of these
 on_programme_primary = children[(children['On The Programme EOY'] == "Yes") & (children['Grade'] != "PreR") & (children['Ever On Programme'] != "Graduated")]
@@ -113,10 +95,8 @@ on_programme_primary_grads = children[(children['On The Programme EOY'] == "Yes"
 on_primary_grads = on_programme_primary_grads.groupby("Schools")
 
 
-# In[6]:
-
-
-app = JupyterDash(__name__)
+app = Dash(__name__)
+server = app.server
 
 app.layout = html.Div([
     dcc.Dropdown(
@@ -158,113 +138,6 @@ def stat_picker(stat):
     fig.update_layout(autosize=False, width=900, height=600)
     return fig
 
-if __name__ == '__main__':
-    app.run_server(mode="inline")
-
-
-
-# In[7]:
-
-
-app = JupyterDash(__name__)
-
-app.layout = html.Div([
-    dcc.Dropdown(
-    id="stat",
-    options=["First Sounds Improvement","Phonics Improvement","Sight Words Improvement", "Letters Improvement", "CVCs Improvement", "Total Improvement"],
-    value="Total Improvement"
-    ),
-    dcc.Graph(id="Graph")
-])
-
-@app.callback(
-    Output("Graph", "figure"),
-    Input("stat", "value")
-)
-
-def stat_picker(stat):
-    
-    # Figuring out who is on the programme for Grades R & 1
-    on_programme_primary = children[(children['On The Programme EOY'] == "Yes") & (children['Grade'].isin(["Grade R", "Grade 1"]))]
-
-    # Calculate the average 'Total Improvement' per 'Schools'
-    avg_improvement = on_programme_primary.groupby('Schools', as_index=False)[stat].mean()
-    avg_improvement = avg_improvement.sort_values(by=stat, ascending=False)
-
-    # Create the bar plot
-    fig = px.bar(avg_improvement, 
-                 x="Schools", 
-                 y=f"{stat}", 
-                 title=f"Average Progress of Grades R & 1 Children by {stat}",
-                color="Schools")
-
-    # Set x-axis title
-    fig.update_xaxes(title_text="Schools")
-
-    # Set y-axis title
-    fig.update_yaxes(title_text=f"{stat}")
-
-    # Update layout properties
-    fig.update_layout(autosize=False, width=900, height=600)
-    return fig
-
-if __name__ == '__main__':
-    app.run_server(mode="inline")
-
-
-
-# In[25]:
-
-
-app = JupyterDash(__name__)
-
-app.layout = html.Div([
-    dcc.Dropdown(
-    id="stat",
-    options=["Sight Words Improvement", "Letters Improvement", "CVCs Improvement", "Sentence Improvement", "Writing a Story", "Total Improvement"],
-    value="Total Improvement"
-    ),
-    dcc.Graph(id="Graph")
-])
-
-@app.callback(
-    Output("Graph", "figure"),
-    Input("stat", "value")
-)
-
-def stat_picker(stat):
-    
-    # Figuring out who is on the programme for Grades 2 & 3
-    on_programme_primary = children[(children['On The Programme EOY'] == "Yes") & (children['Grade'].isin(["Grade 2", "Grade 3"]))]
-
-    # Calculate the average 'Total Improvement' per 'Schools'
-    avg_improvement = on_programme_primary.groupby('Schools', as_index=False)[stat].mean()
-    avg_improvement = avg_improvement.sort_values(by=stat, ascending=False)
-
-    # Create the bar plot
-    fig = px.bar(avg_improvement, 
-                 x="Schools", 
-                 y=f"{stat}", 
-                 title=f"Average Progress of Grades 2 & 3 Children by {stat}",
-                color="Schools")
-
-    # Set x-axis title
-    fig.update_xaxes(title_text="Schools")
-
-    # Set y-axis title
-    fig.update_yaxes(title_text=f"{stat}")
-
-    # Update layout properties
-    fig.update_layout(autosize=False, width=900, height=600)
-    return fig
-
-if __name__ == '__main__':
-    app.run_server(mode="inline")
-
-
-
-# In[ ]:
-
-
-
+if __name__ == "__main__":
+    app.run_server(debug=False)
 
