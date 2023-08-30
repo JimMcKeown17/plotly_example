@@ -12,7 +12,6 @@
 
 
 import pandas as pd
-import seaborn as sns
 import matplotlib.pyplot as plt
 import dash
 
@@ -20,7 +19,6 @@ import dash
 import plotly.graph_objects as go
 import plotly.express as px
 
-from jupyter_dash import JupyterDash
 from dash import dcc, html, Input, Output
 
 from dash.dependencies import Output, Input
